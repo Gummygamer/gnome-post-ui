@@ -1,0 +1,18 @@
+{
+  "name": "Gnome Post UI",
+  "description": "Adds liquid glass, physical controls, and a command-first overlay inspired by the opening design ideas in The Weird Death Of User Interfaces.",
+  "uuid": "gnome-post-ui@darabat.local",
+  "shell-version": [
+    "45",
+    "46",
+    "47",
+    "48",
+    "49",
+    "50"
+  ],
+  "session-modes": [
+    "user"
+  ],
+  "version": 1,
+  "url": "https://www.youtube.com/watch?v=KG4ONHqF1qg"
+}

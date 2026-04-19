@@ -1,0 +1,262 @@
+#panel {
+  background-color: rgba(24, 29, 34, 0.46);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.28);
+}
+
+#panel .panel-button {
+  border-radius: 8px;
+  transition-duration: 160ms;
+}
+
+#panel .panel-button:hover,
+#panel .panel-button:active,
+#panel .panel-button:checked {
+  background-color: rgba(255, 255, 255, 0.14);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+.popup-menu-boxpointer,
+.quick-settings,
+.calendar,
+.message-list,
+.switcher-list,
+.workspace-switcher,
+.osd-window,
+.modal-dialog,
+.end-session-dialog,
+.run-dialog,
+.looking-glass-dialog,
+.screenshot-ui-panel {
+  background-color: rgba(30, 36, 42, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  box-shadow: 0 22px 64px rgba(0, 0, 0, 0.42);
+}
+
+.popup-menu-content,
+.quick-settings-grid,
+.calendar,
+.message,
+.notification-banner,
+.notification,
+.datemenu-calendar-column,
+.world-clocks-button,
+.weather-button,
+.events-button,
+.switcher-list .item-box,
+.app-folder-dialog,
+.search-section-content,
+.dash-background,
+#dash .dash-background {
+  background-color: rgba(38, 45, 52, 0.58);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.popup-menu-item,
+.quick-toggle,
+.quick-menu-toggle,
+.button,
+.icon-button,
+.notification-button,
+.message .message-header .message-expand-button,
+.message .message-header .message-close-button,
+.calendar .calendar-day,
+.calendar .calendar-month-header .pager-button,
+.overview-tile .overview-icon,
+.grid-search-result .overview-icon,
+#dash .dash-item-container .show-apps .overview-icon,
+#dash .dash-item-container .overview-tile .overview-icon,
+#dash .dash-item-container .grid-search-result .overview-icon {
+  border-radius: 8px;
+  transition-duration: 160ms;
+}
+
+.popup-menu-item:hover,
+.quick-toggle:hover,
+.quick-menu-toggle:hover,
+.button:hover,
+.icon-button:hover,
+.notification-button:hover,
+.calendar .calendar-day:hover,
+.switcher-list .item-box:hover,
+.overview-tile:hover .overview-icon,
+.grid-search-result:hover .overview-icon,
+#dash .dash-item-container .show-apps:hover .overview-icon,
+#dash .dash-item-container .overview-tile:hover .overview-icon,
+#dash .dash-item-container .grid-search-result:hover .overview-icon {
+  background-color: rgba(255, 255, 255, 0.13);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.popup-menu-item:active,
+.quick-toggle:checked,
+.quick-toggle:active,
+.quick-menu-toggle:checked,
+.quick-menu-toggle:active,
+.button:active,
+.button:checked,
+.icon-button:active,
+.notification-button:active,
+.calendar .calendar-day:active,
+.calendar .calendar-day:selected,
+.switcher-list .item-box:selected,
+.overview-tile:active .overview-icon,
+.grid-search-result:active .overview-icon,
+#dash .dash-item-container .show-apps:active .overview-icon,
+#dash .dash-item-container .overview-tile:active .overview-icon,
+#dash .dash-item-container .grid-search-result:active .overview-icon {
+  background-color: rgba(112, 221, 196, 0.24);
+  border-color: rgba(112, 221, 196, 0.44);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.22);
+}
+
+.toggle-switch {
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: inset 14px 0 0 rgba(247, 250, 252, 0.86);
+  transition-duration: 180ms;
+}
+
+.toggle-switch:checked {
+  background-color: rgba(112, 221, 196, 0.48);
+  border-color: rgba(112, 221, 196, 0.52);
+  box-shadow: inset -14px 0 0 rgba(247, 250, 252, 0.92);
+}
+
+.slider,
+.level {
+  -barlevel-height: 7px;
+  -barlevel-background-color: rgba(255, 255, 255, 0.2);
+  -barlevel-active-background-color: #70ddc4;
+  -barlevel-border-color: rgba(255, 255, 255, 0.2);
+  -slider-handle-radius: 8px;
+}
+
+.search-entry,
+.login-dialog-prompt-entry,
+.unlock-dialog-entry,
+.lg-dialog StEntry {
+  background-color: rgba(8, 11, 13, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  color: #f7fafc;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.12);
+}
+
+.post-ui-panel-label {
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 8px;
+  padding: 2px 7px;
+  color: #f8fbff;
+  background-color: rgba(42, 48, 56, 0.72);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  font-weight: 700;
+}
+
+.post-ui-shade {
+  background-color: rgba(7, 10, 13, 0.48);
+}
+
+.post-ui-surface {
+  spacing: 16px;
+  padding: 26px;
+  border-radius: 8px;
+  color: #f7fafc;
+  background-color: rgba(34, 39, 45, 0.68);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5);
+}
+
+.post-ui-surface:pulse {
+  border-color: rgba(112, 221, 196, 0.72);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5);
+}
+
+.post-ui-eyebrow {
+  color: #70ddc4;
+  font-size: 11pt;
+  font-weight: 800;
+}
+
+.post-ui-title {
+  color: #ffffff;
+  font-size: 28pt;
+  font-weight: 800;
+}
+
+.post-ui-subtitle {
+  color: rgba(247, 250, 252, 0.78);
+  font-size: 12pt;
+}
+
+.post-ui-entry {
+  min-height: 48px;
+  padding: 0 16px;
+  border-radius: 8px;
+  color: #f7fafc;
+  background-color: rgba(8, 11, 13, 0.58);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.12);
+  selection-background-color: #70ddc4;
+  selected-color: #11181c;
+}
+
+.post-ui-response {
+  padding: 14px 16px;
+  border-radius: 8px;
+  color: #d9f7f0;
+  background-color: rgba(112, 221, 196, 0.1);
+  border: 1px solid rgba(112, 221, 196, 0.22);
+}
+
+.post-ui-toggle-grid {
+  spacing: 12px;
+}
+
+.post-ui-toggle {
+  spacing: 10px;
+  min-width: 170px;
+  padding: 10px;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.post-ui-toggle.is-active {
+  background-color: rgba(112, 221, 196, 0.16);
+  border-color: rgba(112, 221, 196, 0.35);
+}
+
+.post-ui-toggle-track {
+  width: 46px;
+  height: 24px;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  box-shadow: inset 14px 0 0 rgba(247, 250, 252, 0.88);
+}
+
+.post-ui-toggle.is-active .post-ui-toggle-track {
+  background-color: rgba(112, 221, 196, 0.5);
+  box-shadow: inset -14px 0 0 rgba(247, 250, 252, 0.92);
+}
+
+.post-ui-toggle-label {
+  color: #f7fafc;
+  font-weight: 700;
+}
+
+.post-ui-hints {
+  spacing: 6px;
+  padding-top: 4px;
+}
+
+.post-ui-hint {
+  color: rgba(247, 250, 252, 0.7);
+  font-family: monospace;
+  font-size: 10pt;
+}
