@@ -176,6 +176,13 @@
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5);
 }
 
+.post-ui-window-glass {
+  border-radius: 8px;
+  background-color: rgba(34, 39, 45, 0.46);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.48);
+}
+
 .post-ui-eyebrow {
   color: #70ddc4;
   font-size: 11pt;
@@ -211,6 +218,15 @@
   color: #d9f7f0;
   background-color: rgba(112, 221, 196, 0.1);
   border: 1px solid rgba(112, 221, 196, 0.22);
+}
+
+.post-ui-response-text {
+  color: #d9f7f0;
+}
+
+StScrollView.post-ui-response-scroll {
+  padding: 0;
+  border-radius: 8px;
 }
 
 .post-ui-toggle-grid {

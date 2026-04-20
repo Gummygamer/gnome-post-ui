@@ -1,0 +1,215 @@
+@define-color post_ui_glass_bg rgba(34, 39, 45, 0.58);
+@define-color post_ui_glass_bg_dark rgba(8, 11, 13, 0.46);
+@define-color post_ui_glass_bg_light rgba(255, 255, 255, 0.08);
+@define-color post_ui_glass_border rgba(255, 255, 255, 0.2);
+@define-color post_ui_glass_border_soft rgba(255, 255, 255, 0.14);
+@define-color post_ui_text #f7fafc;
+@define-color post_ui_text_muted rgba(247, 250, 252, 0.72);
+@define-color post_ui_accent #70ddc4;
+@define-color post_ui_accent_soft rgba(112, 221, 196, 0.18);
+
+window,
+window.background,
+window.csd,
+.background {
+  color: @post_ui_text;
+  background-color: @post_ui_glass_bg;
+}
+
+window.csd,
+window.csd decoration,
+decoration {
+  border-radius: 8px;
+  border: 1px solid @post_ui_glass_border;
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.48),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+headerbar,
+headerbar.titlebar,
+.titlebar,
+.toolbar,
+toolbar,
+actionbar,
+.search-bar,
+searchbar,
+.view-switcher,
+.toolbarview,
+.toolbarview > box,
+.toolbarview > scrolledwindow {
+  color: @post_ui_text;
+  background-color: rgba(34, 39, 45, 0.46);
+  border-color: @post_ui_glass_border_soft;
+  box-shadow: inset 0 -1px 0 @post_ui_glass_border_soft;
+}
+
+headerbar,
+headerbar.titlebar,
+.titlebar {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.sidebar,
+placessidebar,
+placessidebar > viewport,
+.navigation-sidebar,
+.navigation-sidebar > row,
+.sidebar-pane,
+stacksidebar,
+stacksidebar row {
+  color: @post_ui_text;
+  background-color: rgba(30, 36, 42, 0.38);
+  border-color: @post_ui_glass_border_soft;
+}
+
+scrolledwindow,
+viewport,
+list,
+listview,
+gridview,
+columnview,
+treeview,
+treeview.view,
+.view,
+textview,
+textview text,
+terminal-screen,
+vte-terminal {
+  color: @post_ui_text;
+  background-color: rgba(8, 11, 13, 0.32);
+}
+
+row,
+list row,
+listview row,
+gridview child,
+columnview row,
+treeview.view:selected,
+.view:selected {
+  color: @post_ui_text;
+}
+
+row:hover,
+list row:hover,
+listview row:hover,
+gridview child:hover,
+columnview row:hover,
+treeview.view:hover,
+.view:hover {
+  background-color: @post_ui_glass_bg_light;
+}
+
+row:selected,
+list row:selected,
+listview row:selected,
+gridview child:selected,
+columnview row:selected,
+treeview.view:selected,
+.view:selected {
+  color: #11181c;
+  background-color: alpha(@post_ui_accent, 0.58);
+}
+
+button,
+menubutton,
+entry,
+searchentry,
+spinbutton,
+combobox,
+dropdown,
+popover,
+popover.background,
+menu,
+menuitem,
+notebook > header,
+notebook > stack,
+tab,
+.card,
+.osd,
+.popover {
+  border-radius: 8px;
+  color: @post_ui_text;
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: @post_ui_glass_border_soft;
+}
+
+button:hover,
+menubutton:hover,
+menuitem:hover,
+tab:hover {
+  background-color: rgba(255, 255, 255, 0.13);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+button:checked,
+button:active,
+menubutton:checked,
+menubutton:active,
+tab:checked,
+tab:active {
+  background-color: @post_ui_accent_soft;
+  border-color: alpha(@post_ui_accent, 0.44);
+}
+
+entry,
+searchentry,
+spinbutton,
+textview,
+textview text {
+  color: @post_ui_text;
+  background-color: @post_ui_glass_bg_dark;
+  border: 1px solid @post_ui_glass_border;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.12);
+  caret-color: @post_ui_accent;
+}
+
+entry selection,
+searchentry selection,
+textview text selection,
+label selection {
+  color: #11181c;
+  background-color: @post_ui_accent;
+}
+
+label,
+.dim-label,
+.subtitle,
+statusbar {
+  color: @post_ui_text_muted;
+}
+
+separator,
+paned > separator {
+  background-color: @post_ui_glass_border_soft;
+}
+
+scrollbar,
+scrollbar trough {
+  background-color: transparent;
+}
+
+scrollbar slider {
+  min-width: 6px;
+  min-height: 6px;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.28);
+}
+
+scrollbar slider:hover {
+  background-color: rgba(255, 255, 255, 0.38);
+}
+
+progressbar progress,
+levelbar block.filled,
+scale trough highlight {
+  background-color: @post_ui_accent;
+}
+
+tooltip {
+  color: @post_ui_text;
+  background-color: rgba(30, 36, 42, 0.82);
+  border: 1px solid @post_ui_glass_border;
+  border-radius: 8px;
+}
