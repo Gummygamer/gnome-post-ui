@@ -89,6 +89,21 @@ export default class GnomePostUiExtension extends Extension {
         ]);
         Main.panel.addToStatusArea(`${this.uuid}-ctrl`, this._ctrlIndicator);
 
+        this._txIndicator = new PanelMenu.Button(0.0, 'Gnome Post UI Terminal Capture', false);
+        this._txIndicator.add_child(new St.Label({
+            text: 'TX',
+            y_align: Clutter.ActorAlign.CENTER,
+            style_class: 'post-ui-panel-label',
+        }));
+        this._signals.push([
+            this._txIndicator,
+            this._txIndicator.connect('button-press-event', () => {
+                this._captureTerminal();
+                return Clutter.EVENT_STOP;
+            }),
+        ]);
+        Main.panel.addToStatusArea(`${this.uuid}-tx`, this._txIndicator);
+
         this._buildAiOverlay();
         this._buildCtrlOverlay();
         this._enableWindowGlass();
@@ -106,6 +121,8 @@ export default class GnomePostUiExtension extends Extension {
         this._indicator = null;
         this._ctrlIndicator?.destroy();
         this._ctrlIndicator = null;
+        this._txIndicator?.destroy();
+        this._txIndicator = null;
         this._shade?.destroy();
         this._shade = null;
         this._surface?.destroy();
@@ -521,6 +538,104 @@ export default class GnomePostUiExtension extends Extension {
         }));
 
         return row;
+    }
+
+    _captureTerminal() {
+        const dir = GLib.build_filenamev([GLib.get_user_cache_dir(), 'gnome-post-ui']);
+        const read = name => {
+            try {
+                const file = Gio.File.new_for_path(GLib.build_filenamev([dir, name]));
+                const [ok, bytes] = file.load_contents(null);
+
+                if (!ok)
+                    return '';
+
+                return new TextDecoder().decode(bytes);
+            } catch (_e) {
+                return '';
+            }
+        };
+
+        const command = read('last-command.txt').replace(/\n+$/, '');
+        const output = read('last-output.txt').replace(/\n+$/, '');
+        const exitCode = read('last-exit').trim();
+        const cwd = read('last-cwd').trim();
+        const hasOutput = read('last-has-output').trim() === '1';
+
+        this._showAiOverlay();
+        this._aiEntry.set_text('');
+
+        if (!command) {
+            this._setAiResponse([
+                'No terminal capture yet.',
+                '',
+                'Add this to ~/.bashrc or ~/.zshrc:',
+                `  source ~/.local/share/gnome-shell/extensions/${this.uuid}/post-ui-capture.sh`,
+                '',
+                'Run any command to capture it, or prefix with `aic` to also capture its output.',
+            ].join('\n'));
+            return;
+        }
+
+        const contextLines = [`$ ${command}`];
+
+        if (cwd)
+            contextLines.push(`(in ${cwd})`);
+
+        if (exitCode)
+            contextLines.push(`exit ${exitCode}`);
+
+        if (hasOutput && output) {
+            const clipped = output.length > 4000
+                ? `${output.slice(-4000)}\n[...truncated to last 4000 chars]`
+                : output;
+            contextLines.push('', clipped);
+        } else {
+            contextLines.push('', '(Output was not captured — prefix the command with `aic` to include output.)');
+        }
+
+        const context = contextLines.join('\n');
+        this._setAiResponse(`${context}\n\nAsking Gemini...`);
+        this._pulseAiSurface();
+
+        const apiKey = this._readGeminiApiKey();
+
+        if (!apiKey) {
+            this._setAiResponse(`${context}\n\nAdd a Gemini API key at ~/.config/gnome-post-ui/gemini-api-key to get explanations.`);
+            return;
+        }
+
+        const queryId = ++this._activeAiQuery;
+        const prompt = [
+            `Command: ${command}`,
+            cwd && `Working directory: ${cwd}`,
+            exitCode && `Exit status: ${exitCode}`,
+            hasOutput && output ? `Output:\n${output}` : 'Output was not captured.',
+            '',
+            'Explain what happened in 2-4 short sentences. If the exit status is non-zero or the output indicates an error, name the likely cause and a concrete fix.',
+        ].filter(Boolean).join('\n');
+
+        this._queryGemini(
+            apiKey,
+            prompt,
+            queryId,
+            data => {
+                const summary = this._extractGeminiText(data);
+
+                if (!summary) {
+                    this._setAiResponse(`${context}\n\nGemini returned no explanation.`);
+                    this._pulseAiSurface();
+                    return;
+                }
+
+                this._setAiResponse(`${context}\n\nAI explanation:\n\n${summary}`);
+                this._pulseAiSurface();
+            },
+            error => {
+                this._setAiResponse(`${context}\n\nGemini failed: ${error.message || String(error)}`);
+                this._pulseAiSurface();
+            }
+        );
     }
 
     _queryDuckDuckGo() {

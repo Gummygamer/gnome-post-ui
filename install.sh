@@ -6,7 +6,7 @@ target="${HOME}/.local/share/gnome-shell/extensions/${uuid}"
 gtk_import='@import url("gnome-post-ui.css");'
 
 mkdir -p "${target}"
-cp metadata.json extension.js stylesheet.css "${target}/"
+cp metadata.json extension.js stylesheet.css post-ui-capture.sh "${target}/"
 
 install_gtk_css() {
   gtk_dir="${HOME}/.config/${1}"
