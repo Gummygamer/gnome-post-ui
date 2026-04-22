@@ -20,6 +20,7 @@ const COMMANDS = new Map([
 const GLASS_WINDOW_OPACITY = 228;
 const GLASS_WINDOW_PADDING = 10;
 const GEMINI_MODEL = 'gemini-2.5-flash-lite';
+const GEMINI_SYSTEM_PROMPT = 'You are the assistant for a GNOME desktop AI panel. Be concise, practical, and cautious about current-status claims. When grounding is available, use it and cite concrete sources when they matter. If the evidence is incomplete, say what can and cannot be verified. Do not invent facts.';
 const TARGET_WINDOW_MATCHERS = [
     'alacritty',
     'com.mitchellh.ghostty',
@@ -54,6 +55,8 @@ export default class GnomePostUiExtension extends Extension {
         this._pendingGlassWindows = new Set();
         this._timeoutIds = [];
         this._activeAiQuery = 0;
+        this._aiConversation = [];
+        this._aiTranscript = [];
         this._session = new Soup.Session({
             timeout: 20,
             user_agent: 'gnome-post-ui/1.0',
@@ -332,7 +335,7 @@ export default class GnomePostUiExtension extends Extension {
         });
 
         const subtitle = new St.Label({
-            text: 'Powered by DuckDuckGo Instant Answers.',
+            text: 'Powered by Gemini with grounded web answers.',
             style_class: 'post-ui-subtitle',
         });
 
@@ -617,7 +620,7 @@ export default class GnomePostUiExtension extends Extension {
 
         this._queryGemini(
             apiKey,
-            prompt,
+            [{role: 'user', parts: [{text: prompt}]}],
             queryId,
             data => {
                 const summary = this._extractGeminiText(data);
@@ -642,6 +645,13 @@ export default class GnomePostUiExtension extends Extension {
         const query = this._aiEntry.get_text().trim();
         if (!query)
             return;
+
+        this._aiEntry.set_text('');
+
+        if (this._hasActiveGeminiConversation()) {
+            this._continueGeminiConversation(query);
+            return;
+        }
 
         const queryId = ++this._activeAiQuery;
 
@@ -767,7 +777,7 @@ export default class GnomePostUiExtension extends Extension {
 
         this._queryGemini(
             apiKey,
-            prompt,
+            [{role: 'user', parts: [{text: prompt}]}],
             queryId,
             data => {
                 const summary = this._extractGeminiText(data);
@@ -775,7 +785,8 @@ export default class GnomePostUiExtension extends Extension {
                 if (!summary)
                     throw new Error(data.error?.message || 'Gemini returned no grounded answer.');
 
-                this._setAiResponse(`AI answer from Google Search:\n\n${summary}\n\n${this._formatGeminiGroundingSources(data)}`);
+                this._startGeminiConversation(query, summary);
+                this._appendGeminiSources(data);
                 this._pulseAiSurface();
             },
             error => {
@@ -800,7 +811,7 @@ export default class GnomePostUiExtension extends Extension {
 
         this._queryGemini(
             apiKey,
-            this._buildGeminiPrompt(query, results),
+            [{role: 'user', parts: [{text: this._buildGeminiPrompt(query, results)}]}],
             queryId,
             data => {
                 const summary = this._extractGeminiText(data);
@@ -808,7 +819,8 @@ export default class GnomePostUiExtension extends Extension {
                 if (!summary)
                     throw new Error(data.error?.message || 'Gemini returned no summary.');
 
-                this._setAiResponse(`AI summary from search results:\n\n${summary}\n\n${this._formatResultSources(results)}`);
+                this._startGeminiConversation(query, summary);
+                this._appendResultSources(results);
                 this._pulseAiSurface();
             },
             error => {
@@ -818,7 +830,7 @@ export default class GnomePostUiExtension extends Extension {
         );
     }
 
-    _queryGemini(apiKey, prompt, queryId, onSuccess, onFailure, useGoogleSearch = false) {
+    _queryGemini(apiKey, contents, queryId, onSuccess, onFailure, useGoogleSearch = false) {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
         const message = Soup.Message.new('POST', url);
         message.get_request_headers().append('Content-Type', 'application/json');
@@ -827,15 +839,10 @@ export default class GnomePostUiExtension extends Extension {
         const body = {
             system_instruction: {
                 parts: [{
-                    text: 'You summarize web search results for a GNOME desktop panel. Be concise, practical, and cautious about current-status claims. If the snippets do not prove the answer, say what they suggest and name the sources. Do not invent facts.',
+                    text: GEMINI_SYSTEM_PROMPT,
                 }],
             },
-            contents: [{
-                role: 'user',
-                parts: [{
-                    text: prompt,
-                }],
-            }],
+            contents,
             generationConfig: {
                 maxOutputTokens: 220,
                 temperature: 0.2,
@@ -856,6 +863,7 @@ export default class GnomePostUiExtension extends Extension {
                     return;
 
                 this._aiEntry.reactive = true;
+                    global.stage.set_key_focus(this._aiEntry.clutter_text);
 
                 try {
                     const bytes = sess.send_and_read_finish(result);
@@ -916,6 +924,101 @@ export default class GnomePostUiExtension extends Extension {
         return lines.join('\n');
     }
 
+    _hasActiveGeminiConversation() {
+        return this._aiConversation.length >= 2;
+    }
+
+    _startGeminiConversation(query, summary) {
+        this._aiConversation = [
+            {role: 'user', parts: [{text: query}]},
+            {role: 'model', parts: [{text: summary}]},
+        ];
+        this._aiTranscript = [
+            {speaker: 'You', text: query},
+            {speaker: 'Gemini', text: summary},
+        ];
+        this._renderAiTranscript();
+        this._aiEntry.hint_text = 'Reply to Gemini...';
+    }
+
+    _continueGeminiConversation(query) {
+        const apiKey = this._readGeminiApiKey();
+
+        if (!apiKey) {
+            this._setAiResponse('Add a Gemini API key at ~/.config/gnome-post-ui/gemini-api-key to continue the conversation.');
+            this._pulseAiSurface();
+            return;
+        }
+
+        const queryId = ++this._activeAiQuery;
+        const contents = [
+            ...this._aiConversation,
+            {role: 'user', parts: [{text: query}]},
+        ];
+
+        this._aiTranscript.push({speaker: 'You', text: query});
+        this._renderAiTranscript('Gemini is replying...');
+        this._aiEntry.reactive = false;
+        this._surface.remove_style_pseudo_class('pulse');
+
+        this._queryGemini(
+            apiKey,
+            contents,
+            queryId,
+            data => {
+                const summary = this._extractGeminiText(data);
+
+                if (!summary)
+                    throw new Error(data.error?.message || 'Gemini returned no reply.');
+
+                this._aiConversation = [
+                    ...contents,
+                    {role: 'model', parts: [{text: summary}]},
+                ];
+                this._aiTranscript.push({speaker: 'Gemini', text: summary});
+                this._renderAiTranscript();
+                this._appendGeminiSources(data);
+                this._pulseAiSurface();
+            },
+            error => {
+                this._renderAiTranscript(`Gemini failed: ${error.message || String(error)}`);
+                this._pulseAiSurface();
+            },
+            true
+        );
+    }
+
+    _renderAiTranscript(footer = '') {
+        const sections = [];
+
+        for (const turn of this._aiTranscript) {
+            sections.push(`${turn.speaker}:\n${turn.text}`);
+        }
+
+        if (footer)
+            sections.push(footer);
+
+        this._setAiResponse(sections.join('\n\n'));
+    }
+
+    _appendGeminiSources(data) {
+        const sources = this._formatGeminiGroundingSources(data);
+
+        if (!sources)
+            return;
+
+        this._setAiResponse(`${this._aiResponse.get_text()}\n\n${sources}`);
+    }
+
+    _appendResultSources(results) {
+        const sources = this._formatResultSources(results);
+
+        if (!sources)
+            return;
+
+        this._setAiResponse(`${this._aiResponse.get_text()}\n\n${sources}`);
+    }
+
     _extractGeminiText(data) {
         const parts = data.candidates?.[0]?.content?.parts ?? [];
         return parts
@@ -944,7 +1047,7 @@ export default class GnomePostUiExtension extends Extension {
         }
 
         if (sources.length === 0)
-            return 'Sources: Google Search grounding did not return source URLs.';
+            return '';
 
         return `Sources:\n${sources
             .slice(0, 3)
@@ -1120,6 +1223,9 @@ export default class GnomePostUiExtension extends Extension {
     }
 
     _hideAiOverlay() {
+        this._aiConversation = [];
+        this._aiTranscript = [];
+        this._aiEntry.hint_text = 'Search or ask a question...';
         this._shade.ease({
             opacity: 0,
             duration: 120,
