@@ -375,7 +375,7 @@ export default class GnomePostUiExtension extends Extension {
         this._aiResponseScroll = new St.ScrollView({
             hscrollbar_policy: St.PolicyType.NEVER,
             vscrollbar_policy: St.PolicyType.AUTOMATIC,
-            overlay_scrollbars: true,
+            overlay_scrollbars: false,
             style_class: 'post-ui-response-scroll',
             style: 'max-height: 320px;',
             x_expand: true,
@@ -398,6 +398,17 @@ export default class GnomePostUiExtension extends Extension {
 
         this._aiResponseBox.add_child(this._aiResponse);
         this._aiResponseScroll.set_child(this._aiResponseBox);
+
+        const responseAdjustment = this._aiResponseScroll
+            .get_vscroll_bar()
+            .get_adjustment();
+        this._signals.push([
+            responseAdjustment,
+            responseAdjustment.connect('notify::value', () => {
+                this._aiResponse?.queue_redraw();
+                this._aiResponseBox?.queue_redraw();
+            }),
+        ]);
 
         this._surface.add_child(eyebrow);
         this._surface.add_child(title);
