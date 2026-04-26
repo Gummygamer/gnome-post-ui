@@ -37,8 +37,12 @@ if command -v gnome-extensions >/dev/null 2>&1; then
     gnome-extensions enable "${uuid}"
     echo "Reloaded the running GNOME Shell extension."
   else
-    echo "Run this to enable the extension:"
-    echo "gnome-extensions enable ${uuid}"
+    if gnome-extensions enable "${uuid}"; then
+      echo "Enabled the GNOME Shell extension."
+    else
+      echo "Run this to enable the extension:"
+      echo "gnome-extensions enable ${uuid}"
+    fi
   fi
 else
   echo "Restart GNOME Shell or log out and back in, then run:"

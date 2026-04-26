@@ -70,11 +70,15 @@ export default class GnomePostUiExtension extends Extension {
         }));
         this._signals.push([
             this._indicator,
-            this._indicator.connect('button-press-event', () => {
+            this._indicator.connect('key-press-event', (_actor, event) => {
+                if (!this._isActivationKey(event))
+                    return Clutter.EVENT_PROPAGATE;
+
                 this._toggleAiOverlay();
                 return Clutter.EVENT_STOP;
             }),
         ]);
+        this._connectPanelButton(this._indicator, () => this._toggleAiOverlay());
         Main.panel.addToStatusArea(this.uuid, this._indicator);
 
         this._ctrlIndicator = new PanelMenu.Button(0.0, 'Gnome Post UI Controls', false);
@@ -85,11 +89,15 @@ export default class GnomePostUiExtension extends Extension {
         }));
         this._signals.push([
             this._ctrlIndicator,
-            this._ctrlIndicator.connect('button-press-event', () => {
+            this._ctrlIndicator.connect('key-press-event', (_actor, event) => {
+                if (!this._isActivationKey(event))
+                    return Clutter.EVENT_PROPAGATE;
+
                 this._toggleCtrlOverlay();
                 return Clutter.EVENT_STOP;
             }),
         ]);
+        this._connectPanelButton(this._ctrlIndicator, () => this._toggleCtrlOverlay());
         Main.panel.addToStatusArea(`${this.uuid}-ctrl`, this._ctrlIndicator);
 
         this._txIndicator = new PanelMenu.Button(0.0, 'Gnome Post UI Terminal Capture', false);
@@ -100,11 +108,15 @@ export default class GnomePostUiExtension extends Extension {
         }));
         this._signals.push([
             this._txIndicator,
-            this._txIndicator.connect('button-press-event', () => {
+            this._txIndicator.connect('key-press-event', (_actor, event) => {
+                if (!this._isActivationKey(event))
+                    return Clutter.EVENT_PROPAGATE;
+
                 this._captureTerminal();
                 return Clutter.EVENT_STOP;
             }),
         ]);
+        this._connectPanelButton(this._txIndicator, () => this._captureTerminal());
         Main.panel.addToStatusArea(`${this.uuid}-tx`, this._txIndicator);
 
         this._buildAiOverlay();
@@ -155,6 +167,46 @@ export default class GnomePostUiExtension extends Extension {
 
         for (const actor of global.get_window_actors())
             this._trackGlassWindow(actor.get_meta_window());
+    }
+
+    _connectPanelButton(button, callback) {
+        if (button._clickGesture) {
+            button.remove_action(button._clickGesture);
+
+            const gesture = new Clutter.ClickGesture();
+            gesture.set_recognize_on_press(true);
+            gesture.set_enabled(true);
+
+            this._signals.push([
+                gesture,
+                gesture.connect('recognize', () => {
+                    callback();
+                }),
+            ]);
+
+            button._clickGesture = gesture;
+            button.add_action(gesture);
+            return;
+        }
+
+        this._signals.push([
+            button,
+            button.connect('button-release-event', (_actor, event) => {
+                if (event.get_button && event.get_button() !== 1)
+                    return Clutter.EVENT_PROPAGATE;
+
+                callback();
+                return Clutter.EVENT_STOP;
+            }),
+        ]);
+    }
+
+    _isActivationKey(event) {
+        const symbol = event.get_key_symbol();
+        return symbol === Clutter.KEY_Return ||
+            symbol === Clutter.KEY_KP_Enter ||
+            symbol === Clutter.KEY_ISO_Enter ||
+            symbol === Clutter.KEY_space;
     }
 
     _disableWindowGlass() {
